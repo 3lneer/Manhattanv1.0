@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 import { 
   FaGraduationCap, 
   FaSearch, 
@@ -20,7 +20,7 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen }: SidebarProps) {
   return (
     <div className={`sidebar w-64 bg-white shadow-lg fixed h-full overflow-y-auto z-40 ${isOpen ? 'open' : ''}`}>
       <div className="p-4 gradient-bg text-white">
@@ -46,22 +46,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <h3 className="text-xs uppercase font-semibold text-gray-500 mb-3">Dashboard</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg bg-indigo-50 text-indigo-700">
+                <Link href="/" className="flex items-center space-x-3 p-2 rounded-lg bg-indigo-50 text-indigo-700">
                   <FaHome className="w-6 text-center" />
                   <span>Overview</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <Link href="/calendar" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
                   <FaCalendarAlt className="w-6 text-center" />
                   <span>Calendar</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <Link href="/analytics" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
                   <FaChartLine className="w-6 text-center" />
                   <span>Analytics</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -70,28 +70,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <h3 className="text-xs uppercase font-semibold text-gray-500 mb-3">Education</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <Link href="/courses" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
                   <FaBook className="w-6 text-center" />
                   <span>Courses</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <Link href="/students" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
                   <FaUsers className="w-6 text-center" />
                   <span>Students</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <Link href="/teachers" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
                   <FaChalkboardTeacher className="w-6 text-center" />
                   <span>Teachers</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                <Link href="/assignments" className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700">
                   <FaTasks className="w-6 text-center" />
                   <span>Assignments</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
