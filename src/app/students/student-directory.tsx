@@ -1,70 +1,44 @@
-import { FaUsers, FaPlus, FaSearch, FaEye, FaEdit, FaGraduationCap, FaEnvelope, FaPhone } from 'react-icons/fa';
+"use client";
+import { useState, useEffect } from 'react';
+import { FaUsers, FaPlus, FaSearch, FaEye, FaEdit, FaGraduationCap, FaEnvelope } from 'react-icons/fa';
 
 export default function Students() {
-  const students = [
-    {
-      id: 1,
-      name: 'Alice Johnson',
-      email: 'alice@email.com',
-      phone: '+1 (555) 123-4567',
-      grade: 'A',
-      courses: 4,
-      status: 'Active',
-      avatar: 'AJ'
-    },
-    {
-      id: 2,
-      name: 'Bob Smith',
-      email: 'bob@email.com',
-      phone: '+1 (555) 234-5678',
-      grade: 'B+',
-      courses: 3,
-      status: 'Active',
-      avatar: 'BS'
-    },
-    {
-      id: 3,
-      name: 'Carol Williams',
-      email: 'carol@email.com',
-      phone: '+1 (555) 345-6789',
-      grade: 'A-',
-      courses: 5,
-      status: 'Inactive',
-      avatar: 'CW'
-    },
-    {
-      id: 4,
-      name: 'David Brown',
-      email: 'david@email.com',
-      phone: '+1 (555) 456-7890',
-      grade: 'B',
-      courses: 3,
-      status: 'Active',
-      avatar: 'DB'
-    },
-    {
-      id: 5,
-      name: 'Emma Davis',
-      email: 'emma@email.com',
-      phone: '+1 (555) 567-8901',
-      grade: 'A+',
-      courses: 6,
-      status: 'Active',
-      avatar: 'ED'
-    },
-    {
-      id: 6,
-      name: 'Frank Miller',
-      email: 'frank@email.com',
-      phone: '+1 (555) 678-9012',
-      grade: 'C+',
-      courses: 2,
-      status: 'Active',
-      avatar: 'FM'
-    }
-  ];
+  const [students, setStudents] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('All Students');
 
-  const filters = ['All Students', 'Active', 'Inactive', 'Graduated'];
+  useEffect(() => {
+    async function fetchStudents() {
+      try {
+        const response = await fetch('http://localhost:3001/api/users');
+        const data = await response.json();
+        const studentUsers = data.filter(user => user.role === 'STUDENT');
+        setStudents(studentUsers);
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    }
+    fetchStudents();
+  }, []);
+
+  const filters = ['All Students', 'ACTIVE', 'INACTIVE', 'GRADUATE'];
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return 'bg-green-100 text-green-800';
+      case 'INACTIVE':
+        return 'bg-gray-100 text-gray-800';
+      case 'GRADUATE':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const filteredStudents = students.filter(student => {
+    if (activeFilter === 'All Students') return true;
+    return student.studentProfile?.status === activeFilter;
+  });
 
   return (
     <div className="space-y-6">
@@ -90,32 +64,33 @@ export default function Students() {
           </div>
           
           <div className="flex space-x-2">
-            {filters.map((filter, index) => (
+            {filters.map((filter) => (
               <button
-                key={index}
-                className={`px-4 py-2 rounded-lg ${index === 0 ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`px-4 py-2 rounded-lg capitalize ${activeFilter === filter ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
               >
-                {filter}
+                {filter.toLowerCase().replace('_', ' ')}
               </button>
             ))}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {students.map((student) => (
+          {filteredStudents.map((student) => (
             <div key={student.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {student.avatar}
+                    {student.firstName.charAt(0)}{student.lastName.charAt(0)}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800">{student.name}</h3>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      student.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {student.status}
-                    </span>
+                    <h3 className="text-lg font-semibold text-gray-800">{student.firstName} {student.lastName}</h3>
+                    {student.studentProfile && (
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(student.studentProfile.status)}`}>
+                        {student.studentProfile.status}
+                      </span>
+                    )}
                   </div>
                 </div>
                 
@@ -125,24 +100,9 @@ export default function Students() {
                     <span className="truncate">{student.email}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <FaPhone className="mr-2" />
-                    <span>{student.phone}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
                     <FaGraduationCap className="mr-2" />
-                    <span>{student.courses} courses enrolled</span>
+                    <span>{student.enrollments.length} courses enrolled</span>
                   </div>
-                </div>
-                
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-gray-600">Current Grade:</span>
-                  <span className={`font-semibold ${
-                    student.grade.includes('A') ? 'text-green-600' :
-                    student.grade.includes('B') ? 'text-blue-600' :
-                    'text-orange-600'
-                  }`}>
-                    {student.grade}
-                  </span>
                 </div>
                 
                 <div className="flex space-x-2">
@@ -157,28 +117,6 @@ export default function Students() {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Student Statistics</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">1,234</div>
-              <div className="text-gray-600">Total Students</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">1,186</div>
-              <div className="text-gray-600">Active Students</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-orange-600 mb-2">48</div>
-              <div className="text-gray-600">Inactive Students</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">8.7</div>
-              <div className="text-gray-600">Average Grade</div>
-            </div>
-          </div>
         </div>
       </div>
   );

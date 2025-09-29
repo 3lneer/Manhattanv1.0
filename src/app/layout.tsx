@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Educational platform for managing courses, students, and academic activities",
 };
 
+import { SessionProvider } from "@/context/SessionContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

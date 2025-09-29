@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -13,24 +9,155 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ===============================================
+// SECCIÓN 1: TIPOS PERSONALIZADOS (ENUMS)
+// ===============================================
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATE
+}
+
+enum TeacherStatus {
+  ACTIVE
+  PART_TIME
+  ON_LEAVE
+}
+
+enum CourseStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETE
+}
+
+enum AssignmentDifficulty {
+  FACIL
+  INTERMEDIO
+  DIFICIL
+}
+
+// ===============================================
+// SECCIÓN 2: TABLAS PRINCIPALES
+// ===============================================
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  role      String   @default("student")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String            @id @default(uuid())
+  firstName           String            @map("first_name")
+  lastName            String            @map("last_name")
+  email               String            @unique
+  passwordHash        String            @map("password_hash")
+  role                UserRole          @default(STUDENT)
+  profilePictureUrl   String?           @map("profile_picture_url")
+  bio                 String?
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+
+  studentProfile      StudentProfile?
+  teacherProfile      TeacherProfile?
+  settings            UserSettings?
+  enrollments         Enrollment[]
+  submissions         Submission[]
+  calendarEvents      CalendarEvent[]
+  taughtCourses       Course[]          @relation("TeacherToCourse")
+}
+
+model StudentProfile {
+  userId            String        @id @map("user_id")
+  status            StudentStatus @default(ACTIVE)
+  studentIdNumber   String?       @unique @map("student_id_number")
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TeacherProfile {
+  userId      String        @id @map("user_id")
+  status      TeacherStatus @default(ACTIVE)
+  department  String?
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSettings {
+  userId                    String   @id @map("user_id")
+  emailNotificationsEnabled Boolean  @default(true) @map("email_notifications_enabled")
+  theme                     String   @default("light")
+
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
+  id          String        @id @default(uuid())
   title       String
   description String?
-  image       String?
-  students    Int      @default(0)
-  schedule    String?
-  status      String   @default("Active")
-  badge       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  teacherId   String?       @map("teacher_id")
+  status      CourseStatus  @default(UPCOMING)
+  startDate   DateTime?     @map("start_date")
+  endDate     DateTime?     @map("end_date")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  teacher     User?         @relation("TeacherToCourse", fields: [teacherId], references: [id], onDelete: SetNull)
+  enrollments Enrollment[]
+  assignments Assignment[]
+  calendarEvents CalendarEvent[]
+}
+
+model Enrollment {
+  studentId       String    @map("student_id")
+  courseId        String    @map("course_id")
+  enrollmentDate  DateTime  @default(now()) @map("enrollment_date")
+  progress        Float     @default(0.0)
+
+  student         User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, courseId])
+}
+
+model Assignment {
+  id          String               @id @default(uuid())
+  courseId    String               @map("course_id")
+  title       String
+  description String?
+  dueDate     DateTime?            @map("due_date")
+  difficulty  AssignmentDifficulty @default(INTERMEDIO)
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  course      Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id           String    @id @default(uuid())
+  assignmentId String    @map("assignment_id")
+  studentId    String    @map("student_id")
+  submissionDate DateTime @default(now()) @map("submission_date")
+  content      String?
+  grade        Float?
+  feedback     String?
+
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+}
+
+model CalendarEvent {
+  id          String    @id @default(uuid())
+  courseId    String?   @map("course_id")
+  userId      String?   @map("user_id")
+  title       String
+  startTime   DateTime  @map("start_time")
+  endTime     DateTime  @map("end_time")
+  description String?
+
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

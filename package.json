@@ -2,14 +2,34 @@
   "name": "manhattanv1.0",
   "version": "1.0.0",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "start:server": "node src/server.js",
+    "dev:server": "nodemon src/server.js"
   },
   "dependencies": {
+    "@prisma/client": "^6.16.2",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
+    "next": "^15.5.4",
     "nodemon": "^2.0.20",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-icons": "^5.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.15",
+    "autoprefixer": "^10.4.21",
+    "bcrypt": "^6.0.0",
+    "postcss": "^8.5.6",
+    "prisma": "^6.16.2",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
   }
 }
